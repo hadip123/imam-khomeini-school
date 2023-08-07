@@ -1,7 +1,9 @@
 from flask import Flask, request
 import openpyxl
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/update', methods=['POST'])
 def update_form():
@@ -144,7 +146,7 @@ def update_form():
     # Status of pervious year
     ws['H23'] = request.json['previous_year_status']
     # The total GPA of the ninth grade:
-    ws['P23'] = request.json['ninth_grade_gpa']
+    ws['P23'] = request.json['ninth_gpa']
     # The GPA of ninth grade second period
     ws['U23'] = request.json['ninth_grade_second_gpa']
     # Accepted in "Nemoone-Dolati" Test
@@ -165,6 +167,6 @@ def update_form():
     ws['Y25'] = request.json['mother_education_ministry']
 
     # Save workbook
-    wb.save(request.json['national_code'] + '-' + request.json['name'] + '-' + request.json['last_name'] + '-' + request.json['field_of_study'] + '.xlsx')
+    wb.save('students/' + request.json['national_code'] + '-' + request.json['name'] + '-' + request.json['last_name'] + '-' + request.json['field_of_study'] + '.xlsx')
 
     return "json updated!"
