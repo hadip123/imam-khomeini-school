@@ -169,4 +169,4 @@ def update_form():
     # Save workbook
     wb.save('students/' + request.json['national_code'] + '-' + request.json['name'] + '-' + request.json['last_name'] + '-' + request.json['field_of_study'] + '.xlsx')
 
-    return "json updated!"
+    return "Ok"
