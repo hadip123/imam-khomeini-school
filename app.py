@@ -1,6 +1,6 @@
-from flask import Flask, request
-import openpyxl
+from flask import Flask, request, send_file, send_from_directory
 from flask_cors import CORS
+import openpyxl, sqlite3, uuid, bcrypt, os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -170,3 +170,93 @@ def update_form():
     wb.save('students/' + request.json['national_code'] + '-' + request.json['name'] + '-' + request.json['last_name'] + '-' + request.json['field_of_study'] + '.xlsx')
 
     return "Ok"
+
+
+
+def get_db():
+    db = sqlite3.connect('database.db')
+    db.row_factory = sqlite3.Row
+
+
+    return db
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json['username']
+    password = request.json['password']
+
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+
+    if user and bcrypt.checkpw(bytes(password, 'utf-8'), user['password']):
+        token = str(uuid.uuid4())
+        db.execute('INSERT INTO tokens (user_id, token) VALUES (?, ?)',
+                    (user['id'], token))
+        db.commit()
+        return {'token': token}
+    else:
+        return 'Invalid credentials', 401
+        
+@app.route('/students')  
+def api():
+    token = request.headers.get('X-Token') 
+    if not token:
+        return 'Unauthorized', 401
+        
+    db = get_db()
+    result = db.execute('SELECT user_id FROM tokens WHERE token = ?', 
+                        (token,)).fetchone()
+                        
+    if result:
+        return os.listdir('students/')
+    else:
+        return 'Invalid token', 401
+
+@app.route('/api')  
+def test_api():
+    token = request.headers.get('X-Token') 
+    if not token:
+        return 'Unauthorized', 401
+        
+    db = get_db()
+    result = db.execute('SELECT user_id FROM tokens WHERE token = ?', 
+                        (token,)).fetchone()
+                        
+    if result:
+        return 'OK', 200
+    else:
+        return 'Invalid token', 401
+
+@app.route('/student')  
+def student():
+    token = request.args.get('xToken') 
+    if not token:
+        return 'Unauthorized', 401
+    db = get_db()
+    result = db.execute('SELECT user_id FROM tokens WHERE token = ?', 
+                        (token,)).fetchone()
+    if result == None:
+        return 'Unauthorized', 401
+    students = os.listdir('students/')
+    nCodes = []
+    for st in students:
+        nCodes.append(st.split('-')[0])
+    user_national_code = request.args.get('nCode')
+                        
+    if user_national_code in nCodes :
+        f = -1 
+        for i, st in enumerate(students):
+            if st.startswith(user_national_code):
+                f = i
+                break
+
+        if f == -1:
+            return 'Not Found', 404
+        
+        # return send_file(f'students/{os.listdir("students/")[f]}')
+        return send_from_directory('students/', os.listdir("students/")[f], as_attachment=True, )
+    else:
+        return 'Not Found', 404
+        
+if __name__ == '__main__':
+    app.run()

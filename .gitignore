@@ -26,3 +26,6 @@ htmlcov/
 
 
 students/
+database.db
+
+__pycache__/
