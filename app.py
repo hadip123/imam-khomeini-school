@@ -107,11 +107,11 @@ def update_form():
     ws['J21'] = request.json['mother_birth_year']  
 
     # (Day) Supervisor's Birth
-    ws['F21'] = request.json['supervisor_birth_day']
+    ws['F23'] = request.json['supervisor_birth_day']
     # (Month) Supervisor's Birth
-    ws['H21'] = request.json['supervisor_birth_month']
+    ws['H23'] = request.json['supervisor_birth_month']
     # (Year) Supervisor's Birth
-    ws['J21'] = request.json['supervisor_birth_year']
+    ws['J23'] = request.json['supervisor_birth_year']
 
     # Supervisor name
     ws['I22'] = request.json['supervisor_name']
@@ -122,7 +122,7 @@ def update_form():
     # supervisor's work address
     ws['L23'] = request.json['supervisor_work_address']
     # supervisor's work phone
-    ws['X19'] = request.json['supervisor_work_phone']
+    ws['X23'] = request.json['supervisor_work_phone']
     # (Day) supervisor's Birth
     ws['F23'] = request.json['supervisor_birth_day']
     # (Month) supervisor's Birth  
