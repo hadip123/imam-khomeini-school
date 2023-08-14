@@ -7,6 +7,15 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/update', methods=['POST'])
 def update_form():
+    students = os.listdir('students')
+    f = -1 
+    for i, st in enumerate(students):
+        if st.startswith(request.json['national_code']):
+            f = i
+            break
+
+    if f != -1:
+        return 'Found', 400
 
     # Load the workbook
     wb = openpyxl.load_workbook('form.xlsx')
